@@ -14,10 +14,14 @@ rules by BR-ID; never renumber them.
 
 ## Task
 Trace **3–7** journeys a real customer or operator experiences, each end to end by following the
-code (controller → queue → lifecycle step → storage / authority / mail / push notification).
-Candidates (keep only those the code supports): buying a voucher and the recipient receiving the
-email + PDF (V2); the V1 legacy path; resending a voucher; downloading a PDF by voucher number;
-a market/brand with a feature flag (e.g. Cheetah) or limit; the smoke-test / health-check journey for operators.
+code (entry point → validation → queue or job → domain step → storage / external system / notification).
+Candidate shapes (keep only those the code supports):
+- the main create / purchase / submit flow, through to what the recipient or customer finally receives;
+- a legacy or older API version, if one exists;
+- resend, retry or replay of something already done;
+- reading or downloading something already produced;
+- a region-, brand- or feature-flag-specific variant or limit;
+- the health-check / smoke-test journey for operators.
 
 ## Per journey
 1. **One-line business purpose.**
@@ -25,7 +29,7 @@ a market/brand with a feature flag (e.g. Cheetah) or limit; the smoke-test / hea
 3. **Mermaid flowchart** (≤ 12 nodes in the main diagram; mark async boundaries and external systems).
 4. **Happy path** in business language.
 5. **Unhappy paths** (top 3–5): what the customer sees, what the system does, whether anyone is told
-   (HTTP status, log, StatsD metric, email to ops, nothing). Include time-based failure (queue lag, expiry, retry exhaustion).
+   (HTTP status, log, metric, email to ops, nothing). Include time-based failure (queue lag, expiry, retry exhaustion).
 6. **Systems touched** and the BR-IDs applied at each step.
 
 For every step, cite `path:line` and one evidence tag per claim line. A step you could not trace is 🔴,

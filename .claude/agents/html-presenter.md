@@ -13,13 +13,14 @@ If a `dataviz` skill is available, load it too for chart form and colour decisio
 - `analysis/business-intent-report.md`: the approved report. **Wording, tags and numbers come from here.**
 - `analysis/raw/03-rules.md`, `05-impact.md`, `06-tests.md`: only for data the report does not carry
   (per-risk impact, likelihood, detectability, "what would change it", question owners).
-- The repo's own store or market configuration, for the coverage grid. Parse it; do not retype it.
+- If the repo has a brand, market, store or tenant configuration, use it for the coverage grid. Parse it; do not
+  retype it. If it has none, omit the grid and the store-count assert, and say so on the page.
 - `analysis/raw/07-critic*.md`: the critic's status, for the Confidence section.
 
 ## Task
 Produce `analysis/business-intent-report.html` as specified in Stage C of `.claude/prompt/business.md` and in
 the `html-handoff` skill. In short:
-1. A script (kept outside `app/`, `public/` and `bootstrap/`, for example in the session scratchpad) reads the
+1. A script (kept outside the application's source tree, for example in the session scratchpad) reads the
    inputs, derives every number, **asserts** them, and writes one self-contained HTML file.
 2. The page follows the content order of the skill: at a glance, value, where customers can be hurt, risk,
    who finds out, improvement, open questions, confidence.

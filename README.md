@@ -4,8 +4,9 @@ A set of Claude Code subagents and skills that reverse-engineer a code repositor
 picture: what problem it solves, which rules it enforces, where real customers can be hurt, and what to test
 and fix first. It ends with a written report and a visual HTML version for business readers.
 
-It was built and run on this repository (EES, a Laravel 4.1 / PHP 5.6 voucher service). Parts of it are
-specific to EES; see "Reusing it on another repository".
+It is stack-neutral: nothing in the agents or skills assumes a language, framework or business domain. To use it
+on a project, copy `.claude/agents`, `.claude/skills` and `.claude/prompt` into that project; see "Using it on
+another repository".
 
 ## Intent
 
@@ -34,8 +35,8 @@ specific to EES; see "Reusing it on another repository".
 - The repo is very large and unscoped. The agents read most files outside the skip list. Scope it first, or
   expect the orchestrator to analyse only the top modules and say what it skipped.
 - The result is meant to be public. The outputs contain security findings about your own systems.
-- You cannot afford the run. One run on this ~300-file service used about 3 million subagent tokens and a few
-  hours of wall time (agents run mostly in sequence). Treat that as a rough guide.
+- You cannot afford the run. One reference run on a ~300-file service used about 3 million subagent tokens and a
+  few hours of wall time (agents run mostly in sequence). Treat that as a rough guide.
 
 ## What is here
 
@@ -52,7 +53,7 @@ specific to EES; see "Reusing it on another repository".
 | `agents/critic.md` | Red-teams the draft and the HTML page: spot-checks citations, tags, numbers and wording. |
 | `agents/html-presenter.md` | Builds the business-facing HTML page from the approved report. Presents only. |
 | `skills/evidence-citation` | The tag and `path:line` rules every agent follows. |
-| `skills/business-rule-extraction` | Grep patterns and a checklist for finding rules (PHP/Laravel flavoured). |
+| `skills/business-rule-extraction` | Search patterns and a checklist for finding rules, written as concepts to adapt to any language. |
 | `skills/risk-scoring` | Risk = impact (1-5) x likelihood (1-5) x (1 + detectability bonus); bands 15 / 8. |
 | `skills/anti-over-testing` | What not to test and how to pick the lowest pyramid layer. |
 | `skills/report-writing` | The report template and length limits. |
@@ -76,7 +77,8 @@ applies the critic's fixes, re-runs the critic once, and stops. One revision rou
 
 Prerequisites: Claude Code started from the repo root (project agents and skills are loaded when a session
 starts; files created mid-session may not be registered for a while, so a fresh session is the safe choice),
-`git`, `python3`, and `google-chrome-stable` for the HTML checks. No PHP is needed; the tests are read, not run.
+`git`, `python3`, and `google-chrome-stable` for the HTML checks. The target project's own runtime is not needed;
+its tests are read, not run.
 
 1. Start Claude Code in the repo root and confirm the agents are listed (for example with `/agents`). If they
    are not, restart the session, or use the `general-purpose` fallback described under Variants.
@@ -89,8 +91,8 @@ starts; files created mid-session may not be registered for a while, so a fresh 
    Print your plan first. Delegate to the subagents in the order of its table, passing file
    paths instead of pasted content, and write outputs to analysis/ and analysis/raw/.
    When the critic has passed the written report, run Stage C: html-presenter builds
-   analysis/business-intent-report.html and the critic reviews it. Do not modify app/,
-   do not commit, do not publish anything.
+   analysis/business-intent-report.html and the critic reviews it. Do not modify application
+   code, do not commit, do not publish anything.
    ```
 
 4. Review the outputs, in this order: `analysis/business-intent-report.md` (the written report),
@@ -130,28 +132,29 @@ need those links removed or the raw files published too.
 - One evidence tag per claim line, with a citation. A 🔴 claim lives in Open Questions, not in the body as fact.
 - Committed config values are treated as development defaults that deployment overwrites: "configured in code"
   is not "live in production".
-- A bare `git log` can be truncated in some environments (here it showed only 50 of 1,679 commits). Use
+- A bare `git log` can be truncated in some environments (for example to the newest 50 commits). Use
   `git --no-pager log -n 5000 ...` and confirm with `git rev-list --count HEAD`.
 
-## Reusing it on another repository
+## Using it on another repository
 
-The method is generic; these parts are EES-specific and should be reviewed or replaced first:
+Copy `.claude/agents`, `.claude/skills` and `.claude/prompt` into the target project's `.claude/`, start a fresh
+session there, and run as described above. No edits are required. Optional tuning before a run:
 
-- `agents/orchestrator.md`: the "Seed hypotheses" and "Git tooling note" sections (EES files, counts and churn).
-- `skills/business-rule-extraction/SKILL.md`: grep patterns assume PHP / Laravel 4.1.
-- `skills/risk-scoring/SKILL.md`: the churn note refers to this repo's history.
-- `skills/html-handoff/SKILL.md` and `prompt/business.md`: written in general terms, but the coverage grid is parsed
-  from this repo's store configuration, so the presenter needs to find the equivalent in the new repo.
-- Anything that names `app/`, `public/` or `bootstrap/` as protected paths: adjust to the new layout.
-
-Copy `.claude/agents`, `.claude/skills` and `.claude/prompt`, edit the items above, start a fresh session, and
-run as described.
+- **Seed hypotheses**: `agents/orchestrator.md` has an empty "Seed hypotheses" section. Add one-line, repo-specific
+  questions there if you already suspect something; `rules-extractor` then confirms or refutes each and the critic
+  re-checks the verdicts. With none, the agents say "none provided".
+- **Coverage grid**: the HTML page includes a brand/market/store grid only if the repo has such a configuration to
+  parse. Otherwise the presenter omits it, and the matching assert, and says so on the page.
+- **Stack-specific search hints**: `skills/business-rule-extraction/SKILL.md` lists search concepts, not exact
+  tokens. If your stack has distinctive idioms (annotations, DSL calls, config conventions), add them to its table.
+- **Large repos**: scope the run first, as described under "When not to use it".
 
 ## Maintenance notes
 
 - `prompt/business.md` and the files under `agents/` and `skills/` should change together. If you change the
   prompt, update the matching agent or skill.
-- `.claude` is listed in this repository's `.gitignore`, so these files are not tracked unless you remove that
-  line or add them explicitly.
+- `.claude` is tracked in this repository. In a target project that gitignores `.claude`, remove that line or add the
+  harness files explicitly. Add `analysis/` to the target's `.gitignore` if the outputs should not be committed;
+  they contain security findings.
 - Known limits of this design: it cannot execute tests, cannot see production, and its themes, mappings and
   scores are the analysis's own judgement; the critic reviews wording and evidence, not business priorities.

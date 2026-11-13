@@ -13,16 +13,22 @@ Produce a factual system map of this repo. Describe what exists, not what it mea
 business (that is the archaeologist's job). Do not modify application code.
 
 ## Cover
-1. **Tech stack**: language/runtime versions, framework, key libraries, test tooling (`composer.json`, `phpunit.xml.dist`).
-2. **Entry points**: every HTTP route (resolve what `Route::resource` actually generates), queue
-   handlers (`Queue::push` targets and who consumes them), artisan commands, health/smoke endpoints,
-   CLI scripts. For each: file:line, input, output, sync vs async.
-3. **Modules**: one line per directory under `app/` (controllers, models, lib, validators, config, views, tests).
-4. **External integrations**: S3, SMTP/mail, EAI / voucher authority, Catalog, push-notification targets
-   (Magento, Gambit, Exchange, …), Cheetah, VMS, StatsD/monitoring, the private composer packages. For each: how it is called, config key, failure handling seen.
-5. **Data stores**: DB (if any), filesystem, S3 buckets, cache, session, queue driver. Note "no DB" claims explicitly (`NoDbModel`).
-6. **Deployment hints**: `.gitlab-ci.yml`, env-specific config under `app/config/`, `app/start/`, sonar config.
-7. **Glossary**: domain terms found in code and what they mean (voucher, evoucher, box, SEV product, FVV, authority, payload, store_code, callback_system, …). Define only from evidence; unknown terms get 🔴 and are listed as questions.
+1. **Tech stack**: language/runtime versions, framework, key libraries, test tooling. Read the dependency
+   manifest, lockfile and test-runner config (whatever this stack uses: `package.json`, `pom.xml`,
+   `build.gradle`, `go.mod`, `requirements.txt`, `Gemfile`, `composer.json`, `*.csproj`, …).
+2. **Entry points**: every HTTP route (resolve what any route-generating helper or resource macro actually
+   produces), message/queue handlers (who publishes, who consumes), scheduled jobs, CLI commands,
+   health/smoke endpoints, scripts. For each: file:line, input, output, sync vs async.
+3. **Modules**: one line per top-level source directory (handlers/controllers, models, libraries, validators,
+   config, views/templates, tests).
+4. **External integrations**: databases, object storage, mail/SMS, message brokers, third-party and internal
+   APIs, payment or identity providers, monitoring/metrics, private packages. For each: how it is called,
+   config key, failure handling seen.
+5. **Data stores**: database (if any), filesystem, object storage, cache, session, queue driver. If the code
+   or its names claim "no database" (or similar), note it explicitly.
+6. **Deployment hints**: CI config, container/IaC files, environment-specific config, static-analysis config.
+7. **Glossary**: domain terms found in code (entity names, status values, config keys, partner names) and what
+   they mean. Define only from evidence; unknown terms get 🔴 and are listed as questions.
 
 ## Output
 Write `analysis/raw/01-cartographer.md`. Sections: Stack · Entry points (table) · Modules · Integrations (table) · Data stores · Deployment · Glossary · Skipped (what you did not read, and why) · Open Questions.

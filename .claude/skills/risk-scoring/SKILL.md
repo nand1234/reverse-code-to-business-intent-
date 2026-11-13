@@ -8,24 +8,26 @@ description: Score a business rule or customer journey as Customer Impact x Like
 **Risk = Customer Impact (1–5) × Likelihood (1–5) × (1 + low-detectability bonus)**
 
 ## Customer Impact (1–5)
-| 5 | Money lost or wrongly taken, legal/compliance breach, or a gift the recipient can never redeem |
+| 5 | Money lost or wrongly taken, legal/compliance breach, or a purchase the customer can never use |
 |---|---|
-| 4 | Customer data exposed, voucher not delivered / wrong voucher delivered, silent loss of a purchase |
+| 4 | Customer data exposed, item or service not delivered / wrong one delivered, silent loss of an order |
 | 3 | Delivery delayed, wrong content/branding/locale, task blocked but recoverable by support |
 | 2 | Cosmetic or degraded experience, workaround exists |
 | 1 | No customer-visible effect |
 
 ## Likelihood (1–5)
 Raise it for: complexity (branching, many collaborators), **missing tests** (no test pins the rule),
-external dependencies (HTTP, S3, queue, SMTP), concurrency / ordering, and date or money math.
+external dependencies (HTTP, object storage, queue, mail), concurrency / ordering, and date or money math.
 Lower it for: simple, well-tested, stable code.
 
-**Churn for this repo:** history is long (1,679 commits, 2014-02 → 2026-04), so churn is a usable
-signal. Measure it with `git --no-pager log -n 5000 --name-only --pretty=format: -- <path> | grep -v '^$' | sort | uniq -c | sort -rn`.
-(A bare `git log` in this environment prints only the newest 50 commits — always pass `--no-pager -n 5000`
-and check with `git rev-list --count HEAD`.) Use two windows: all-time, and the last 24 months, because
-all-time counts mostly reflect the V1 era. Recent churn means the rule is still moving; all-time churn
-means it is historically fragile. Combine with complexity, missing tests, external dependencies and date/money logic.
+**Churn:** if the history is long enough to be a usable signal, measure it per file with
+`git --no-pager log -n 5000 --name-only --pretty=format: -- <path> | grep -v '^$' | sort | uniq -c | sort -rn`.
+(A bare `git log` can be truncated in some environments — always pass `--no-pager -n 5000` and check the
+total with `git rev-list --count HEAD`; raise `-n` if the total is higher.) Use two windows: all-time, and the
+last 24 months before the newest commit, because all-time counts can mostly reflect an older era of the code.
+Recent churn means the rule is still moving; all-time churn means it is historically fragile. Combine with
+complexity, missing tests, external dependencies and date/money logic. If the history is short or squashed,
+say so and do not lean on churn.
 
 ## Detectability bonus
 | Bonus | When |

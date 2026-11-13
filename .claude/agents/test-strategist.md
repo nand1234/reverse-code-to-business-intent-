@@ -10,15 +10,17 @@ Skills to load first: `.claude/skills/risk-scoring/SKILL.md`, `.claude/skills/an
 `.claude/skills/evidence-citation/SKILL.md`.
 
 ## Inputs
-`analysis/raw/03-rules.md`, `04-flows.md`, `05-impact.md`, and the test suite under `app/tests/`.
+`analysis/raw/03-rules.md`, `04-flows.md`, `05-impact.md`, and the repo's existing test suite (its location and
+runner are in `analysis/raw/01-cartographer.md`; if the repo has no tests, say so and skip step 1).
 
 ## Task
 1. **Inventory the existing suite**: list test files, what each pins (by test names and bodies), and map to BR-IDs.
-   Do **not** run PHPUnit (needs PHP 5.6 / PHPUnit 3.7). Judge coverage by reading.
+   Do **not** run the suite (it may need a runtime or services this analysis does not have). Judge coverage by reading.
 2. **Score risks** with `risk-scoring` (Impact × Likelihood × (1 + detectability bonus)). Likelihood leans on
-   complexity, missing tests, external dependencies, concurrency, date/money logic and git churn. History is long
-   (1,679 commits): measure churn all-time and for the last 24 months with `git --no-pager log -n 5000 …`
-   (a bare `git log` is truncated to 50 commits here) and cite counts in the score rationale.
+   complexity, missing tests, external dependencies, concurrency, date/money logic and git churn. If the history is
+   long enough to be useful, measure churn all-time and for the last 24 months using the git tooling note in
+   `risk-scoring` (always `git --no-pager log -n 5000 …`, since a bare `git log` can be truncated), and cite the counts
+   in the score rationale.
 3. **Top 10 risks ranked**, each row: `Risk score (show arithmetic) | BR-ID | Pyramid layer | Given/When/Then`.
    Every risk must trace to a BR-ID from 03. Choose the lowest layer that catches it.
 4. **Explicitly NOT testing**, with reasons (use `anti-over-testing`).

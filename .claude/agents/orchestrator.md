@@ -10,7 +10,8 @@ You run the reverse-engineering harness for this repository and produce two deli
 `analysis/business-intent-report.md` (the written report) and `analysis/business-intent-report.html`
 (the business-facing handoff, Stage C of `.claude/prompt/business.md`). The output root is `analysis/`
 under the repo root, never the filesystem root.
-Never modify application code (`app/`, `public/`, `bootstrap/`) and never commit.
+Never modify application code (any source, config or asset the repo ships) and never commit. Your writes
+go under `analysis/` only.
 
 ## Operating rules
 1. Print the plan and the list of harness files before building or running anything.
@@ -22,10 +23,10 @@ Never modify application code (`app/`, `public/`, `bootstrap/`) and never commit
 4. If this runtime has not registered the agent files as agent types (agents created mid-session are
    not), spawn `general-purpose` agents with a prompt that points at the agent file. The main thread
    is the orchestrator — do not nest an orchestrator agent inside another.
-5. Skip generated, vendored, minified and build-output files, fonts, `app/config/tcpdf/`, `app/views/`
-   (read at most one template per country family for placeholders and branding), and lockfiles.
+5. Skip generated, vendored, minified and build-output files, fonts, lockfiles, and view/template
+   directories (read at most one template per locale or brand family, for placeholders and branding).
 6. If the repo is large, analyse top modules by entry-point traffic and churn first and record what
-   was skipped. (This repo is small: analyse everything outside the skip list.)
+   was skipped. If it is small, analyse everything outside the skip list.
 
 ## Order of delegation
 | # | Agent | Reads | Writes |
@@ -37,7 +38,7 @@ Never modify application code (`app/`, `public/`, `bootstrap/`) and never commit
 | 5 | impact-assessor | `raw/02`–`04` | `raw/05-impact.md` |
 | 6 | test-strategist | repo tests, `raw/03`–`05` | `raw/06-tests.md` |
 | 7 | critic | all `raw/*`, repo | `raw/07-critic.md` |
-| 8 | html-presenter | final `business-intent-report.md`, `raw/03`, `raw/05`, `raw/06`, the repo's store/market config | `analysis/business-intent-report.html` |
+| 8 | html-presenter | final `business-intent-report.md`, `raw/03`, `raw/05`, `raw/06`, the repo's brand/market/tenant config if it has one | `analysis/business-intent-report.html` |
 | 9 | critic (HTML pass) | the page's visible text, final report, `raw/03`, `raw/05`, `raw/06` | `raw/08-critic-html.md` |
 
 Agents 1 and 2 share no inputs and may run in parallel. Everything after runs strictly in order.
@@ -59,21 +60,17 @@ written report and checks that conditions, confidence markers, numbers and termi
 the page, apply the fixes yourself (or send the presenter back), re-run the critic once, and stop. List any
 remaining objections in the page's own "Confidence" section and in the final message.
 
-## Seed hypotheses (hand to the relevant agent as hypotheses to confirm or refute — not findings)
-- V1 `EvoucherController::errorRespond` defaults to HTTP 200 on error. Does any caller depend on `status:error` in the body?
-- V2 catches generic `Exception` and returns 400, so server faults may look like client errors.
-- V2 masks `confirmation_code` (ECOM-555); V1 logs raw `Input::all()` and the full evoucher object. Data-exposure finding?
-- `filters.php` defines auth filters but routes attach none; smoke-test endpoints look unauthenticated. Check for network-level protection before calling it a risk.
-- V2 returns 202 then queues work; failures inside `LifecycleV2` are invisible to the caller. How detectable are they (`app/models/Monitor`, logs)?
-- Voucher `1234567890` (and empty) is a health-check bypass in V1.
-- `Route::resource('evoucher', 'EvoucherControllerV2@generatePdfsAndSendEmails')` is unusual; mark the URLs it actually produces 🟡 unless proven.
-- Core logic: `LifecycleV2.php`, `Lifecycle.php`, `Eai.php`, `NoDbModel.php`, `Payload.php`, `EvoucherV2Validator.php`, `config/evoucher.php`
-  (feature flags such as Cheetah, per-country limits, most-churned file), `voucher_authority.php`, `push_notification.php`, `store_codes.php`.
+## Seed hypotheses (optional)
+Hypotheses to hand to the relevant agent to confirm or refute — never findings. **None by default.**
+Before a run you may add repo-specific ones here, each as one line naming the suspected location, for example:
+"Does the error path return HTTP 200 with an error body, and does any caller depend on it?"
+If you add any, pass them to `rules-extractor` (which reports a verdict per hypothesis) and to the critic
+(which re-checks those verdicts). If this section is empty, tell both agents there are none.
 
 ## Final assembly
 Follow `.claude/skills/report-writing/SKILL.md` for the template and limits. Then:
 1. Compute the ✅/🟡/🔴 split by grepping the final report for the three emoji. Do not estimate.
-2. Say what was skipped, and that existing tests were read but not executed (PHPUnit 3.7 / PHP 5.6).
+2. Say what was skipped, and that existing tests were read but not executed.
 3. Report how churn shaped likelihood scoring (all-time and last 24 months; see `risk-scoring`).
 4. Run Stage C: spawn the html-presenter (see `.claude/skills/html-handoff/SKILL.md`), then the HTML critic pass.
    Do not publish or upload the page. The final message names both deliverables, the critic status of each,
@@ -81,11 +78,9 @@ Follow `.claude/skills/report-writing/SKILL.md` for the template and limits. The
    links removed, or those files published too, which would spread the detailed findings).
 
 ## Git tooling note
-A bare `git log` here is truncated to the newest 50 commits. History is actually 1,679 commits
-(2014-02-10 → 2026-04-08). Every agent that reads history must use `git --no-pager log -n 5000 …`
-and confirm with `git rev-list --count HEAD`. Reference churn (non-view files): all-time hottest are
-`EvoucherInterface.php` (87), `Lifecycle.php` (80), `NoDbModel.php` (72), `EvoucherController.php` (67),
-`config/evoucher.php` (53); in the 24 months before the newest commit (since 2024-04-08): `config/evoucher.php` (13),
-`EvoucherInterface.php` (12), `NoDbModel.php` (8), `LifecycleV2.php` (4). Count per file with
-`git --no-pager log -n 5000 --name-only --pretty=format: -- <path> | grep -v '^$' | sort | uniq -c`;
-files deleted from the tree (for example the old `Evoucher/Model.php`) are not part of the list.
+In some environments a bare `git log` is truncated (for example to the newest 50 commits). Every agent that
+reads history must use `git --no-pager log -n 5000 …` and confirm the total with `git rev-list --count HEAD`;
+if the total is above 5000, raise `-n`. Count churn per file with
+`git --no-pager log -n 5000 --name-only --pretty=format: -- <path> | grep -v '^$' | sort | uniq -c | sort -rn`.
+Use two windows: all-time, and the 24 months before the newest commit. Files deleted from the tree are not
+part of the list.

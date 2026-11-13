@@ -116,8 +116,9 @@ approved report; it never adds, upgrades or reinterprets a finding.
 ## C2. Content (in this order)
 1. At a glance: three columns (Business value, Risk, Improvement), each with one number and one sentence.
 2. Business value: the end-to-end flow with what the business gets at each step, who benefits (with the
-   conditions under which they do), and a coverage grid of brands/markets/stores built by parsing the code's own
-   store or market configuration. State that "configured in code" is not "live".
+   conditions under which they do), and, only if the repo has a brand, market, store or tenant configuration, a
+   coverage grid built by parsing that configuration (otherwise omit the grid). State that "configured in code" is
+   not "live".
 3. Where customers can be hurt: the same journey, with risk markers per step.
 4. Risk: themes (plain-English consequence plus top score), a chart of how far the open questions could move the
    top scores, and the full scored-risk grid (impact x likelihood) with a table twin.
@@ -142,7 +143,7 @@ approved report; it never adds, upgrades or reinterprets a finding.
   draw a symmetric range that was not stated.
 - Show only numbers the report states, or numbers computed from data on the page and labelled as such ("21 of the
   25 are rated silent by the analysis").
-- Keep terminology consistent (for example, the order system is not "the shop").
+- Keep terminology consistent: pick one name for each system or party and use it everywhere.
 
 ## C4. Visual rules
 - Pick the form by the data's job: a strip for a sequence, bars or dot-and-line for magnitude, a grid for a 2-D
@@ -156,8 +157,9 @@ approved report; it never adds, upgrades or reinterprets a finding.
 
 ## C5. Build and verify
 - Generate the page with a script, not by hand. Parse the numbers from the final report and the raw data, derive
-  the counts (bands, tag split, silent share) and ASSERT them: store count, risk arithmetic, every risk in
-  exactly one theme, tag counts equal to the report's. A failed assert stops the build.
+  the counts (bands, tag split, silent share) and ASSERT them: risk arithmetic, every risk in exactly one theme,
+  tag counts equal to the report's, and (only if the page has a coverage grid) the store/market count. A failed
+  assert stops the build.
 - Verify once, then fix in a single pass. Render with headless Chrome at desktop width and at true phone widths
   (400, 360, 320px) plus one dark-theme sample. Headless Chrome will not lay out narrower than about 485px, so test
   phone widths inside a fixed-width iframe served over local HTTP. Check tag balance, no external URLs, no

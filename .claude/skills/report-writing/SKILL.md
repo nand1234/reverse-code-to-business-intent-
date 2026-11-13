@@ -56,4 +56,4 @@ by file:line only — never reproduce the values.
 
 ## Style
 - Tables and bullets over prose. No marketing language. No speculation outside Open Questions.
-- Name the customer harm in plain words ("the recipient never gets the gift"), not the exception class.
+- Name the customer harm in plain words ("the customer never receives their order"), not the exception class.

@@ -14,14 +14,14 @@ something if each claim line has one tag, so never stack two, never leave a clai
 - 🔴 **SPECULATIVE** — a guess. It MUST also appear in your "Open Questions" section.
 
 ## Citation format
-- Code: `app/models/LifecycleV2.php:120` or a range `:120-148`.
-- History: the short commit SHA, e.g. `(5280193)`.
+- Code: `src/orders/service.ts:120` or a range `:120-148`.
+- History: the short commit SHA, e.g. `(a1b2c3d)`.
 - Generated or absent evidence: say "no evidence found in `<paths searched>`" — absence is a finding.
 
 ## Line shape
 `<tag> <claim in business language> — <technical detail> (`path:line`)`
 
-Example: `✅ A voucher number must be 9–12 digits — validator rule (`app/controllers/EvoucherController.php:232`)`
+Example: `✅ A reference code must be 9–12 digits — validator rule (`src/api/validators.ts:232`)`
 
 ## Rules
 - Business language first, technical detail second.

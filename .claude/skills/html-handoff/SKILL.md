@@ -26,8 +26,9 @@ It presents the approved report. It never adds, upgrades or reinterprets a findi
 ## Content, in this order
 1. **At a glance**: three columns (value, risk, improvement), one number and one sentence each.
 2. **Business value**: the end-to-end flow with "what the business gets" per step; who benefits, each with the
-   condition under which they do; a brand x market coverage grid parsed from the code's store/market config, with
-   layout or tier differences marked. Say "configured in code is not live".
+   condition under which they do; and, **only if the repo has a brand, market, store or tenant configuration**, a
+   coverage grid parsed from it, with layout or tier differences marked (otherwise omit the grid and say so on the
+   page). Say "configured in code is not live".
 3. **Where customers can be hurt**: the same flow as columns, each risk marker with plain text, condition,
    confidence marker and a coloured ID chip. Add a row for risks that cut across every step.
 4. **Risk**: themes (plain-English consequence, top score bar with the must-test line, silent/log-only counts,
@@ -55,7 +56,7 @@ It presents the approved report. It never adds, upgrades or reinterprets a findi
   different-scenario alternative is drawn as an alternative, never as a symmetric range.
 - A number the report does not state is allowed only when computed from the data on the page and labelled
   ("21 of the 25 are rated silent by the analysis").
-- Keep terminology consistent: the order system is not "the shop"; "configured" is not "live".
+- Keep terminology consistent: pick one name for each system or party and use it everywhere; "configured" is not "live".
 
 ## Visual rules
 - Form follows the data's job: strip for a sequence, bars or dot-and-line for magnitude, grid for 2-D ranking,
@@ -70,9 +71,10 @@ It presents the approved report. It never adds, upgrades or reinterprets a findi
 
 ## Build and verify
 1. **Generate with a script, not by hand.** Parse the numbers from the final report and the raw data. Assert at
-   least: store count and the layout split from the config; every score equals impact x likelihood x
-   (1 + detectability); risks per band equal the report's; every risk is in exactly one theme; the tag counts equal
-   what the report contains when its tag emoji are counted. A failed assert stops the build.
+   least: every score equals impact x likelihood x (1 + detectability); risks per band equal the report's; every
+   risk is in exactly one theme; the tag counts equal what the report contains when its tag emoji are counted; and,
+   if the page has a coverage grid, its store/market count and layout split equal the parsed config. A failed
+   assert stops the build.
 2. **Verify once, then fix in a single pass.**
    - Desktop: render with headless Chrome (`--headless=new --screenshot`), full page in one tall window, then crop
      slices. Scrolling a headless window leaves the viewport unpainted, so do not rely on `scrollTo` captures.

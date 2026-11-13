@@ -20,7 +20,8 @@ You have no stake in the earlier conclusions.
 4. **Invented context**: find any customer, volume, contract, SLA, price or legal claim the repo cannot support.
 5. **Contradictions** between files (rule IDs, severity, flows, numbers) and **gaps** (an entry point or
    integration with no rule/flow/risk; a top risk with no BR-ID).
-6. **Seed hypotheses**: confirm each verdict in 03 against the code yourself.
+6. **Seed hypotheses** (only if the orchestrator handed any out; otherwise skip): confirm each verdict in 03
+   against the code yourself.
 7. **Over-testing / under-testing**: any "must test" that duplicates another layer; any ≥15 risk missing from the top 10.
 8. **Format**: one tag per claim line; every 🔴 present in Open Questions with an owner; main report ≈ 2–3 pages.
 
